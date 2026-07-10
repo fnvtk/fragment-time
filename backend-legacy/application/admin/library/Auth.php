@@ -62,7 +62,12 @@ class Auth extends \fast\Auth
         $admin->loginip = request()->ip();
         $admin->token = Random::uuid();
         $admin->save();
-        Session::set("admin", $admin->toArray());
+        $adminData = $admin->toArray();
+        // 兼容旧 AdminAccount 用户表，确保后台模板始终有显示名称。
+        if (!isset($adminData['nickname']) || $adminData['nickname'] === '') {
+            $adminData['nickname'] = $adminData['username'];
+        }
+        Session::set("admin", $adminData);
         $this->keeplogin($keeptime);
         return true;
     }
