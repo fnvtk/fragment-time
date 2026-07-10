@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
-import { LayoutDashboard, Users, FileSpreadsheet, Package, ClipboardList, BarChart3, Settings, X, WalletCards } from "lucide-react"
+import { LayoutDashboard, Users, FileSpreadsheet, Package, ClipboardList, BarChart3, Settings, X, WalletCards, Shield, ScrollText } from "lucide-react"
 
 const menuItems = [
   {
@@ -48,6 +48,16 @@ const menuItems = [
     title: "系统设置",
     icon: <Settings className="h-5 w-5" />,
     href: "/admin/settings",
+  },
+  {
+    title: "后台账号",
+    icon: <Shield className="h-5 w-5" />,
+    href: "/admin/admins",
+  },
+  {
+    title: "操作日志",
+    icon: <ScrollText className="h-5 w-5" />,
+    href: "/admin/logs",
   },
 ]
 
