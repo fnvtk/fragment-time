@@ -1,0 +1,22 @@
+services:
+  fragment-time-mysql:
+    image: mariadb:10.6
+    container_name: fragment-time-mysql
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: fragment-time-local-root
+      MARIADB_DATABASE: fragment_time
+      MARIADB_USER: fragment_time
+      MARIADB_PASSWORD: fragment-time-local
+    ports:
+      - "3310:3306"
+    volumes:
+      - fragment-time-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  fragment-time-mysql-data:
