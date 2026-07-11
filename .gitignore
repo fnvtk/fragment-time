@@ -29,3 +29,4 @@ next-env.d.ts
 data/*.sql
 .env.local
 .env.production.local
+public/uploads/

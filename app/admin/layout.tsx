@@ -24,7 +24,7 @@ export default function AdminLayout({
             <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(true)}>
               <Menu className="h-5 w-5" />
             </Button>
-            <div className="ml-4 text-lg font-semibold">碎片时间管理后台</div>
+            <div className="ml-4"><div className="text-lg font-semibold">碎片时间管理后台</div><div className="text-xs text-muted-foreground">小程序业务与 FastAdmin 权限统一管理</div></div>
           </div>
           <Link href="/">
             <Button variant="outline" size="sm" className="gap-2">
@@ -38,4 +38,3 @@ export default function AdminLayout({
     </div>
   )
 }
-

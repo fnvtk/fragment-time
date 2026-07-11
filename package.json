@@ -7,6 +7,7 @@
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start"
+    ,"migrate:admin": "node scripts/migrate-admin-system.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

@@ -1,12 +1,13 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
-import { LayoutDashboard, Users, FileSpreadsheet, Package, ClipboardList, BarChart3, Settings, X, WalletCards, Shield, ScrollText } from "lucide-react"
+import { LayoutDashboard, Users, FileSpreadsheet, Package, ClipboardList, BarChart3, Settings, X, WalletCards, Shield, ScrollText, UsersRound, ListTree, Images, FolderTree, SlidersHorizontal, LogOut } from "lucide-react"
 
 const menuItems = [
   {
@@ -53,13 +54,20 @@ const menuItems = [
     title: "后台账号",
     icon: <Shield className="h-5 w-5" />,
     href: "/admin/admins",
+    rule: "admins",
   },
+  { title: "权限组", icon: <UsersRound className="h-5 w-5" />, href: "/admin/groups", rule: "groups" },
+  { title: "菜单规则", icon: <ListTree className="h-5 w-5" />, href: "/admin/rules", rule: "rules" },
+  { title: "素材管理", icon: <Images className="h-5 w-5" />, href: "/admin/attachments", rule: "attachments" },
+  { title: "分类管理", icon: <FolderTree className="h-5 w-5" />, href: "/admin/categories", rule: "categories" },
+  { title: "通用配置", icon: <SlidersHorizontal className="h-5 w-5" />, href: "/admin/configs", rule: "configs" },
   {
     title: "操作日志",
     icon: <ScrollText className="h-5 w-5" />,
     href: "/admin/logs",
+    rule: "logs",
   },
-]
+].map(item => ({ ...item, rule: item.rule || (item.href === "/admin" ? "dashboard" : item.href.split("/").pop()!) }))
 
 interface SidebarProps {
   open?: boolean
@@ -68,6 +76,12 @@ interface SidebarProps {
 
 export function Sidebar({ open, onOpenChange }: SidebarProps) {
   const pathname = usePathname()
+  const router = useRouter()
+  const [rules, setRules] = useState<string[]>([])
+  const [nickname, setNickname] = useState("管理员")
+  useEffect(() => { fetch("/api/admin/auth/me").then(r => r.json()).then(j => { setRules(j.data?.rules || []); setNickname(j.data?.nickname || j.data?.username || "管理员") }) }, [])
+  const visibleItems = menuItems.filter(item => rules.includes("*") || rules.includes(item.rule))
+  async function logout(){ await fetch("/api/admin/auth/logout",{method:"POST"}); router.replace("/admin/login"); router.refresh() }
 
   const content = (
     <ScrollArea className="h-full py-6">
@@ -81,7 +95,7 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
           </Button>
         </div>
         <div className="space-y-1">
-          {menuItems.map((item) => (
+          {visibleItems.map((item) => (
             <Link key={item.href} href={item.href}>
               <Button
                 variant="ghost"
@@ -93,6 +107,7 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
             </Link>
           ))}
         </div>
+        <div className="mt-8 border-t pt-4"><p className="px-3 pb-2 text-xs text-muted-foreground">当前账号：{nickname}</p><Button variant="ghost" className="w-full justify-start text-red-600" onClick={logout}><LogOut className="h-5 w-5"/><span className="ml-2">退出登录</span></Button></div>
       </div>
     </ScrollArea>
   )
