@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
-import { LayoutDashboard, Users, FileSpreadsheet, Package, ClipboardList, BarChart3, Settings, X, WalletCards, Shield, ScrollText, UsersRound, ListTree, Images, FolderTree, SlidersHorizontal, LogOut, ReceiptText } from "lucide-react"
+import { LayoutDashboard, Users, FileSpreadsheet, Package, ClipboardList, BarChart3, Settings, X, WalletCards, Shield, ScrollText, UsersRound, ListTree, Images, FolderTree, SlidersHorizontal, LogOut, ReceiptText, UserCog } from "lucide-react"
 
 const menuItems = [
   {
@@ -46,6 +46,7 @@ const menuItems = [
     href: "/admin/withdrawals",
   },
   { title: "收费与账单", icon: <ReceiptText className="h-5 w-5" />, href: "/admin/bills", rule: "bills" },
+  { title: "个人资料", icon: <UserCog className="h-5 w-5" />, href: "/admin/profile", rule: "profile" },
   {
     title: "系统设置",
     icon: <Settings className="h-5 w-5" />,

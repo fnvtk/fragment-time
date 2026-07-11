@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS config (id int unsigned NOT NULL AUTO_INCREMENT,name 
 const [columns] = await db.query("SHOW COLUMNS FROM admin LIKE 'nickname'")
 if (!columns.length) await db.query("ALTER TABLE admin ADD nickname varchar(50) NOT NULL DEFAULT '' AFTER salt")
 const rules = [
-  ['dashboard','控制台','LayoutDashboard'],['users','小程序用户','Users'],['tasks','任务管理','ClipboardList'],['packages','数据包管理','Package'],['withdrawals','提现管理','WalletCards'],['bills','收费与账单','ReceiptText'],['settings','小程序设置','Settings'],['admins','管理员','Shield'],['groups','权限组','UsersRound'],['rules','菜单规则','ListTree'],['attachments','素材管理','Images'],['categories','分类管理','FolderTree'],['configs','系统配置','SlidersHorizontal'],['logs','操作日志','ScrollText'],['stats','统计报表','BarChart3']
+  ['dashboard','控制台','LayoutDashboard'],['users','小程序用户','Users'],['tasks','任务管理','ClipboardList'],['packages','数据包管理','Package'],['withdrawals','提现管理','WalletCards'],['bills','收费与账单','ReceiptText'],['settings','小程序设置','Settings'],['admins','管理员','Shield'],['groups','权限组','UsersRound'],['rules','菜单规则','ListTree'],['attachments','素材管理','Images'],['categories','分类管理','FolderTree'],['configs','系统配置','SlidersHorizontal'],['logs','操作日志','ScrollText'],['stats','统计报表','BarChart3'],['profile','个人资料','UserCog']
 ]
 for (let i=0;i<rules.length;i++) await db.query("INSERT INTO auth_rule(name,title,icon,ismenu,weigh,status) VALUES(?,?,?,?,?,?) ON DUPLICATE KEY UPDATE title=VALUES(title),icon=VALUES(icon),ismenu=1", [...rules[i],1,100-i,'normal'])
 await db.query("INSERT INTO auth_group(id,pid,name,rules,status) VALUES(1,0,'超级管理员','*','normal') ON DUPLICATE KEY UPDATE name='超级管理员',rules='*',status='normal'")
