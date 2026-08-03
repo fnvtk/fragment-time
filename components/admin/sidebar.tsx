@@ -27,7 +27,7 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
   const router = useRouter()
   const [rules, setRules] = useState<string[]>([])
   const [nickname, setNickname] = useState("管理员")
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() => Object.fromEntries(menuGroups.map(group => [group.title, true])))
   useEffect(() => { fetch("/api/admin/auth/me").then(r => r.json()).then(j => { setRules(j.data?.rules || []); setNickname(j.data?.nickname || j.data?.username || "管理员") }) }, [])
   useEffect(() => {
     const current = menuGroups.find(group => group.items.some(item => pathname === item.href))?.title
@@ -37,11 +37,12 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
   async function logout(){ await fetch("/api/admin/auth/logout",{method:"POST"}); router.replace("/admin/login"); router.refresh() }
 
   const content = (
-    <ScrollArea className="h-full py-6">
-      <div className="space-y-4 px-3">
-        <div className="flex h-12 items-center px-2">
+    <ScrollArea className="h-full py-5">
+      <div className="space-y-5 px-3">
+        <div className="flex h-14 items-center px-2">
           <Link href="/admin" className="flex items-center gap-2 font-semibold">
-            <span className="text-xl">碎片时间</span>
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-sm">碎</span>
+            <span><span className="block text-base font-bold tracking-tight">碎片时间</span><span className="block text-[11px] text-muted-foreground">运营管理后台</span></span>
           </Link>
           <Button variant="ghost" size="icon" className="ml-auto lg:hidden" onClick={() => onOpenChange?.(false)}>
             <X className="h-5 w-5" />
@@ -53,10 +54,10 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
             if (!items.length) return null
             const isCollapsed = collapsed[group.title]
             return <section key={group.title}>
-              <button type="button" className="flex w-full items-center justify-between px-3 py-1 text-xs font-semibold tracking-wide text-muted-foreground" onClick={() => { window.localStorage.setItem("fragment-admin:last-nav-group", group.title); setCollapsed(Object.fromEntries(menuGroups.map(item => [item.title, item.title !== group.title]))) }}>
+              <button type="button" aria-expanded={!isCollapsed} className="flex min-h-9 w-full items-center justify-between rounded-lg px-3 py-1 text-xs font-semibold tracking-wide text-muted-foreground transition-colors hover:bg-muted/70 hover:text-foreground" onClick={() => { window.localStorage.setItem("fragment-admin:last-nav-group", group.title); setCollapsed(Object.fromEntries(menuGroups.map(item => [item.title, item.title !== group.title]))) }}>
                 <span>{group.title}</span><ChevronDown className={cn("h-4 w-4 transition-transform", isCollapsed && "-rotate-90")} />
               </button>
-              {!isCollapsed && <div className="mt-1 space-y-1">{items.map((item) => <Link key={item.href} href={item.href}><Button variant="ghost" className={cn("w-full justify-start", pathname === item.href && "bg-primary/10 text-primary")}>{item.icon}<span className="ml-2">{item.title}</span></Button></Link>)}</div>}
+              {!isCollapsed && <div className="mt-1 space-y-1">{items.map((item) => <Link key={item.href} href={item.href}><Button variant="ghost" className={cn("h-11 w-full justify-start rounded-xl transition-all", pathname === item.href && "bg-primary/10 font-semibold text-primary shadow-sm", pathname !== item.href && "text-muted-foreground hover:bg-muted/70 hover:text-foreground")}>{item.icon}<span className="ml-2">{item.title}</span></Button></Link>)}</div>}
             </section>
           })}
         </div>
