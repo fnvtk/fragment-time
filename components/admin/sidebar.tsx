@@ -25,10 +25,15 @@ interface SidebarProps {
 export function Sidebar({ open, onOpenChange }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const [rules, setRules] = useState<string[]>([])
+  const [rules, setRules] = useState<string[] | null>(null)
   const [nickname, setNickname] = useState("管理员")
+  const [authError, setAuthError] = useState("")
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() => Object.fromEntries(menuGroups.map(group => [group.title, true])))
-  useEffect(() => { fetch("/api/admin/auth/me").then(r => r.json()).then(j => { setRules(j.data?.rules || []); setNickname(j.data?.nickname || j.data?.username || "管理员") }) }, [])
+  async function loadAuth() {
+    setAuthError("")
+    try { const response = await fetch("/api/admin/auth/me", { cache: "no-store" }); const result = await response.json(); if (!response.ok || result.code !== 1) throw new Error(result.msg || "登录状态已失效"); setRules(result.data?.rules || []); setNickname(result.data?.nickname || result.data?.username || "管理员") } catch (error) { setRules([]); setAuthError(error instanceof Error ? error.message : "导航加载失败") }
+  }
+  useEffect(() => { void loadAuth() }, [])
   useEffect(() => {
     const current = menuGroups.find(group => group.items.some(item => pathname === item.href))?.title
     const saved = window.localStorage.getItem("fragment-admin:last-nav-group") || current || "工作台"
@@ -49,7 +54,7 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
           </Button>
         </div>
         <div className="space-y-3">
-          {menuGroups.map((group) => {
+          {rules === null ? <div className="space-y-2 px-3" aria-label="正在加载导航"><div className="h-4 w-20 animate-pulse rounded bg-muted" /><div className="h-10 w-full animate-pulse rounded-xl bg-muted" /><div className="h-10 w-full animate-pulse rounded-xl bg-muted" /></div> : authError ? <div className="rounded-xl bg-red-50 p-3 text-xs text-red-600">{authError}<Button size="sm" variant="outline" className="mt-2 h-8 w-full" onClick={() => void loadAuth()}>重新加载导航</Button></div> : menuGroups.map((group) => {
             const items = group.items.filter(item => rules.includes("*") || rules.includes(item.rule))
             if (!items.length) return null
             const isCollapsed = collapsed[group.title]
