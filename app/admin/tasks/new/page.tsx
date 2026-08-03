@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -12,6 +13,18 @@ import { ImagePlus } from "lucide-react"
 
 export default function NewTaskPage() {
   const [step, setStep] = useState(1)
+  const [name, setName] = useState("")
+  const [brief, setBrief] = useState("")
+  const [reward, setReward] = useState("0")
+  const [message, setMessage] = useState("")
+  const router = useRouter()
+  async function submit() {
+    setMessage("保存中...")
+    const response = await fetch("/api/admin/tasks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, brief, reward }) })
+    const result = await response.json()
+    if (response.ok && result.code === 1) router.push("/admin/tasks")
+    else setMessage(result.msg || "保存失败")
+  }
 
   return (
     <div className="p-6">
@@ -52,12 +65,12 @@ export default function NewTaskPage() {
           <div className="space-y-6">
             <div className="grid gap-2">
               <Label htmlFor="taskName">任务名称</Label>
-              <Input id="taskName" placeholder="请输入任务名称" />
+              <Input id="taskName" value={name} onChange={e => setName(e.target.value)} placeholder="请输入任务名称" />
             </div>
 
             <div className="grid gap-2">
               <Label htmlFor="taskDesc">任务简介</Label>
-              <Textarea id="taskDesc" placeholder="请输入任务简介" />
+              <Textarea id="taskDesc" value={brief} onChange={e => setBrief(e.target.value)} placeholder="请输入任务简介" />
             </div>
 
             <div className="grid gap-2">
@@ -173,7 +186,7 @@ export default function NewTaskPage() {
               <Button variant="outline" onClick={() => setStep(2)}>
                 上一步
               </Button>
-              <Button>提交</Button>
+              <Button onClick={submit}>提交</Button><span className="text-sm text-orange-600">{message}</span>
             </div>
           </div>
         )}
@@ -181,4 +194,3 @@ export default function NewTaskPage() {
     </div>
   )
 }
-

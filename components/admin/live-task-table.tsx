@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -13,6 +14,7 @@ export function LiveTaskTable() {
   const [rows, setRows] = useState<TaskRow[]>([])
   const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
   async function load() {
     setLoading(true)
@@ -35,9 +37,9 @@ export function LiveTaskTable() {
   }
 
   return <Card className="overflow-hidden">
-    <div className="flex flex-col gap-3 border-b p-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-3 border-b p-4 md:flex-row md:items-center md:justify-between">
       <div><h1 className="text-2xl font-bold">任务管理</h1><p className="text-sm text-muted-foreground">直接管理碎片时间小程序任务</p></div>
-      <div className="flex gap-2"><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="搜索任务名称" /><Button onClick={load}>查询</Button></div>
+      <div className="flex gap-2"><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="搜索任务名称" /><Button onClick={load}>查询</Button><Button onClick={() => router.push("/admin/tasks/new")}>新增任务</Button></div>
     </div>
     <div className="overflow-auto">
       <Table><TableHeader><TableRow><TableHead>ID</TableHead><TableHead>任务名称</TableHead><TableHead>奖励</TableHead><TableHead>领取/完成</TableHead><TableHead>状态</TableHead><TableHead className="text-right">操作</TableHead></TableRow></TableHeader>

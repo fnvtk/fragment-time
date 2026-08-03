@@ -29,6 +29,11 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
   const [nickname, setNickname] = useState("管理员")
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
   useEffect(() => { fetch("/api/admin/auth/me").then(r => r.json()).then(j => { setRules(j.data?.rules || []); setNickname(j.data?.nickname || j.data?.username || "管理员") }) }, [])
+  useEffect(() => {
+    const current = menuGroups.find(group => group.items.some(item => pathname === item.href))?.title
+    const saved = window.localStorage.getItem("fragment-admin:last-nav-group") || current || "工作台"
+    setCollapsed(Object.fromEntries(menuGroups.map(group => [group.title, group.title !== saved])))
+  }, [pathname])
   async function logout(){ await fetch("/api/admin/auth/logout",{method:"POST"}); router.replace("/admin/login"); router.refresh() }
 
   const content = (
@@ -48,7 +53,7 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
             if (!items.length) return null
             const isCollapsed = collapsed[group.title]
             return <section key={group.title}>
-              <button type="button" className="flex w-full items-center justify-between px-3 py-1 text-xs font-semibold tracking-wide text-muted-foreground" onClick={() => setCollapsed(value => ({ ...value, [group.title]: !value[group.title] }))}>
+              <button type="button" className="flex w-full items-center justify-between px-3 py-1 text-xs font-semibold tracking-wide text-muted-foreground" onClick={() => { window.localStorage.setItem("fragment-admin:last-nav-group", group.title); setCollapsed(Object.fromEntries(menuGroups.map(item => [item.title, item.title !== group.title]))) }}>
                 <span>{group.title}</span><ChevronDown className={cn("h-4 w-4 transition-transform", isCollapsed && "-rotate-90")} />
               </button>
               {!isCollapsed && <div className="mt-1 space-y-1">{items.map((item) => <Link key={item.href} href={item.href}><Button variant="ghost" className={cn("w-full justify-start", pathname === item.href && "bg-primary/10 text-primary")}>{item.icon}<span className="ml-2">{item.title}</span></Button></Link>)}</div>}
