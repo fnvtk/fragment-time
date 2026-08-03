@@ -14,13 +14,13 @@ export function LiveTaskTable() {
   const [rows, setRows] = useState<TaskRow[]>([])
   const [search, setSearch] = useState("")
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
   const router = useRouter()
 
   async function load() {
     setLoading(true)
-    const res = await fetch(`/api/admin/tasks?search=${encodeURIComponent(search)}`, { cache: "no-store" })
-    const json = await res.json()
-    setRows(json.data || [])
+    setError("")
+    try { const res = await fetch(`/api/admin/tasks?search=${encodeURIComponent(search)}`, { cache: "no-store" }); if (!res.ok) throw new Error("请求失败"); const json = await res.json(); setRows(json.data || []) } catch { setError("任务数据加载失败，请重试") }
     setLoading(false)
   }
 
@@ -39,11 +39,11 @@ export function LiveTaskTable() {
   return <Card className="overflow-hidden">
       <div className="flex flex-col gap-3 border-b p-4 md:flex-row md:items-center md:justify-between">
       <div><h1 className="text-2xl font-bold">任务管理</h1><p className="text-sm text-muted-foreground">直接管理碎片时间小程序任务</p></div>
-      <div className="flex gap-2"><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="搜索任务名称" /><Button onClick={load}>查询</Button><Button onClick={() => router.push("/admin/tasks/new")}>新增任务</Button></div>
+      <div className="flex flex-wrap gap-2"><Input className="min-w-48" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="搜索任务名称" /><Button variant="outline" onClick={load}>查询</Button><Button variant="outline" onClick={load}>刷新</Button><Button onClick={() => router.push("/admin/tasks/new")}>新增任务</Button></div>
     </div>
     <div className="overflow-auto">
       <Table><TableHeader><TableRow><TableHead>ID</TableHead><TableHead>任务名称</TableHead><TableHead>奖励</TableHead><TableHead>领取/完成</TableHead><TableHead>状态</TableHead><TableHead className="text-right">操作</TableHead></TableRow></TableHeader>
-      <TableBody>{loading ? <TableRow><TableCell colSpan={6}>正在读取真实数据...</TableCell></TableRow> : rows.map((row) => <TableRow key={row.id}><TableCell>{row.id}</TableCell><TableCell>{row.name}</TableCell><TableCell>¥{Number(row.reward).toFixed(2)}</TableCell><TableCell>{row.receiveNum}/{row.completeNum}</TableCell><TableCell><Badge variant={row.isShow ? "default" : "secondary"}>{row.isShow ? "显示" : "隐藏"}</Badge></TableCell><TableCell className="text-right"><div className="flex justify-end gap-2"><Button size="sm" variant="outline" onClick={() => edit(row)}>编辑</Button><Button size="sm" variant="outline" onClick={() => toggle(row)}>{row.isShow ? "隐藏" : "显示"}</Button></div></TableCell></TableRow>)}</TableBody></Table>
+      <TableBody>{loading ? <TableRow><TableCell colSpan={6} className="h-24 text-center text-muted-foreground">正在读取真实数据...</TableCell></TableRow> : error ? <TableRow><TableCell colSpan={6} className="h-24 text-center text-red-600">{error} <Button size="sm" variant="outline" className="ml-2" onClick={load}>重试</Button></TableCell></TableRow> : rows.length === 0 ? <TableRow><TableCell colSpan={6} className="h-24 text-center text-muted-foreground">暂无任务数据，可点击“新增任务”创建</TableCell></TableRow> : rows.map((row) => <TableRow key={row.id}><TableCell>{row.id}</TableCell><TableCell>{row.name}</TableCell><TableCell>¥{Number(row.reward).toFixed(2)}</TableCell><TableCell>{row.receiveNum}/{row.completeNum}</TableCell><TableCell><Badge variant={row.isShow ? "default" : "secondary"}>{row.isShow ? "显示" : "隐藏"}</Badge></TableCell><TableCell className="text-right"><div className="flex justify-end gap-2"><Button size="sm" variant="outline" onClick={() => edit(row)}>编辑</Button><Button size="sm" variant="outline" onClick={() => toggle(row)}>{row.isShow ? "隐藏" : "显示"}</Button></div></TableCell></TableRow>)}</TableBody></Table>
     </div>
   </Card>
 }
